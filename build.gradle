@@ -3,7 +3,7 @@ apply plugin: 'eclipse'
 apply plugin: 'nexus'
 apply plugin: 'org.standardout.versioneye'
 
-version = '2.2.2'
+version = '2.3.0'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -35,7 +35,7 @@ buildscript {
 }
 
 ext {
-    log4jVersion = '2.10.0'
+    log4jVersion = '2.11.0'
     powermockVersion = '1.6.6'
 }
 
@@ -84,7 +84,8 @@ repositories {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.12'
+    gradleVersion = '4.7'
+    distributionType = 'ALL'
 }
 
 dependencies {
