@@ -99,12 +99,4 @@ dependencies {
     testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: powermockVersion
 }
 
-task copyDependencies(type:Copy) {
-    new File('build/libs').mkdirs()
-    copy {
-        from configurations.runtime
-        into 'build/libs'
-    }
-}
-
 // vim: set ts=4 sw=4 et:
