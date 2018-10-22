@@ -1,30 +1,33 @@
 package de.bwaldvogel.log4j;
 
+import static org.mockito.Mockito.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 import org.apache.logging.log4j.message.Message;
+import org.apache.logging.log4j.spi.DefaultThreadContextMap;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mock;
-
+@RunWith(MockitoJUnitRunner.class)
 public class SystemdJournalAppenderTest {
 
+    @Mock
     private SystemdJournalLibrary journalLibrary;
+
+    @Mock
+    private Message message;
 
     @Before
     public void prepare() {
-        journalLibrary = mock(SystemdJournalLibrary.class);
-
         ThreadContext.clearAll();
     }
 
@@ -33,7 +36,6 @@ public class SystemdJournalAppenderTest {
         SystemdJournalAppender journalAppender = new SystemdJournalAppender("Journal", null, null, false, journalLibrary,
                 false, false, false, false, false, false, null, null);
 
-        Message message = mock(Message.class);
         when(message.getFormattedMessage()).thenReturn("some message");
         LogEvent event = new Log4jLogEvent.Builder().setMessage(message).setLevel(Level.INFO).build();
 
@@ -54,7 +56,6 @@ public class SystemdJournalAppenderTest {
         SystemdJournalAppender journalAppender = new SystemdJournalAppender("Journal", null, null, false, journalLibrary,
                 true, false, false, false, false, false, null, null);
 
-        Message message = mock(Message.class);
         when(message.getFormattedMessage()).thenReturn("some message");
         LogEvent event = new Log4jLogEvent.Builder() //
                 .setMessage(message)//
@@ -73,7 +74,7 @@ public class SystemdJournalAppenderTest {
         expectedArgs.add("CODE_FUNC=%s");
         expectedArgs.add("testAppend_LogSource");
         expectedArgs.add("CODE_LINE=%d");
-        expectedArgs.add(Integer.valueOf(65));
+        expectedArgs.add(Integer.valueOf(66));
         expectedArgs.add(null);
 
         verify(journalLibrary).sd_journal_send("MESSAGE=%s", expectedArgs.toArray());
@@ -85,7 +86,6 @@ public class SystemdJournalAppenderTest {
         SystemdJournalAppender journalAppender = new SystemdJournalAppender("Journal", null, null, false, journalLibrary,
                 false, false, false, false, false, false, null, null);
 
-        Message message = mock(Message.class);
         when(message.getFormattedMessage()).thenReturn("some message");
 
         LogEvent event = new Log4jLogEvent.Builder() //
@@ -112,16 +112,15 @@ public class SystemdJournalAppenderTest {
         SystemdJournalAppender journalAppender = new SystemdJournalAppender("Journal", null, null, false, journalLibrary,
                 false, false, true, true, true, true, null, "some-identifier");
 
-        Message message = mock(Message.class);
         when(message.getFormattedMessage()).thenReturn("some message");
 
-        Map<String, String> contextMap = new LinkedHashMap<>();
+        DefaultThreadContextMap contextMap = new DefaultThreadContextMap();
         LogEvent event = mock(LogEvent.class);
         when(event.getMessage()).thenReturn(message);
         when(event.getLoggerName()).thenReturn("some logger");
         when(event.getLevel()).thenReturn(Level.INFO);
         when(event.getThreadName()).thenReturn("the thread");
-        when(event.getContextMap()).thenReturn(contextMap);
+        when(event.getContextData()).thenReturn(contextMap);
 
         contextMap.put("foo%s$1%d", "bar");
 
